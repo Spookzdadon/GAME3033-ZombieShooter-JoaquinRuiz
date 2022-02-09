@@ -9,15 +9,18 @@ public class WeaponHolder : MonoBehaviour
     [SerializeField]
     public GameObject weaponToSpawn;
 
-    PlayerController playerController;
+    public PlayerController playerController;
     Animator animator;
 
     public Sprite crossHairImage;
+    WeaponComponent equippedWeapon;
 
     [SerializeField]
     public GameObject weaponSocketLocation;
     [SerializeField]
     public Transform gripIKSocketLocation;
+
+    bool firingPressed = false;
 
 
     // Start is called before the first frame update
@@ -26,6 +29,9 @@ public class WeaponHolder : MonoBehaviour
         playerController = GetComponent<PlayerController>();
         animator = GetComponent<Animator>();
         GameObject spawnedWeapon = Instantiate(weaponToSpawn, weaponSocketLocation.transform.position, weaponSocketLocation.transform.rotation, weaponSocketLocation.transform);
+        equippedWeapon = spawnedWeapon.GetComponent<WeaponComponent>();
+        equippedWeapon.Initialize(this);
+        gripIKSocketLocation = equippedWeapon.gripLocation;
     }
 
     // Update is called once per frame
@@ -36,8 +42,11 @@ public class WeaponHolder : MonoBehaviour
 
     private void OnAnimatorIK(int layerIndex)
     {
-        animator.SetIKPositionWeight(AvatarIKGoal.LeftHand, 1);
-        animator.SetIKPosition(AvatarIKGoal.LeftHand, gripIKSocketLocation.transform.position);
+        if (!playerController.isReloading)
+        {
+            animator.SetIKPositionWeight(AvatarIKGoal.LeftHand, 1);
+            animator.SetIKPosition(AvatarIKGoal.LeftHand, gripIKSocketLocation.transform.position);
+        }
     }
 
     public void OnReload(InputValue value)
@@ -49,8 +58,37 @@ public class WeaponHolder : MonoBehaviour
 
     public void OnFire(InputValue value)
     {
-        playerController.isFiring = value.isPressed;
-        animator.SetBool("IsFiring", playerController.isFiring);
-        //set up firing animation
+        firingPressed = value.isPressed;
+        if (firingPressed)
+        {
+            StartFiring();
+        }
+        else
+        {
+            StopFiring();
+        }
+    }
+
+    void StartFiring()
+    {
+        if (equippedWeapon.weaponStats.bulletsInClip <= 0)
+        {
+            return;
+        }
+        animator.SetBool("IsFiring", true);
+        playerController.isFiring = true;
+        equippedWeapon.StartFiringWeapon();
+    }
+
+    void StopFiring()
+    {
+        animator.SetBool("IsFiring", false);
+        playerController.isFiring = false;
+        equippedWeapon.StopFiringWeapon();
+    }
+
+    public void StartReloading()
+    {
+
     }
 }
