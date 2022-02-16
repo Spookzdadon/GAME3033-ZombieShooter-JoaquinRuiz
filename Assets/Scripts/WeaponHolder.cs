@@ -31,6 +31,7 @@ public class WeaponHolder : MonoBehaviour
         GameObject spawnedWeapon = Instantiate(weaponToSpawn, weaponSocketLocation.transform.position, weaponSocketLocation.transform.rotation, weaponSocketLocation.transform);
         equippedWeapon = spawnedWeapon.GetComponent<WeaponComponent>();
         equippedWeapon.Initialize(this);
+        PlayerEvents.InvokeOnWEaponEquipped(equippedWeapon);
         gripIKSocketLocation = equippedWeapon.gripLocation;
     }
 
@@ -49,12 +50,7 @@ public class WeaponHolder : MonoBehaviour
         }
     }
 
-    public void OnReload(InputValue value)
-    {
-        playerController.isReloading = value.isPressed;
-        animator.SetBool("IsReloading", playerController.isReloading);
 
-    }
 
     public void OnFire(InputValue value)
     {
@@ -73,6 +69,7 @@ public class WeaponHolder : MonoBehaviour
     {
         if (equippedWeapon.weaponStats.bulletsInClip <= 0)
         {
+            StartReloading();
             return;
         }
         animator.SetBool("IsFiring", true);
@@ -87,8 +84,48 @@ public class WeaponHolder : MonoBehaviour
         equippedWeapon.StopFiringWeapon();
     }
 
+    public void OnReload(InputValue value)
+    {
+        playerController.isReloading = value.isPressed;
+        StartReloading();
+    }
+
     public void StartReloading()
     {
+        if (playerController.isFiring)
+        {
+            StopFiring();
+        }
+        if (equippedWeapon.weaponStats.totalBullets <= 0)
+        {
+            return;
+        }
+
+        // Refill ammo here
+        equippedWeapon.StartReloading();
+
+
+        playerController.isReloading = true;
+        animator.SetBool("IsReloading", true);
+        InvokeRepeating(nameof(StopReloading), 0, 0.1f);
+    }
+
+    public void StopReloading()
+    {
+        if (animator.GetBool("IsReloading"))
+        {
+            return;
+        }
+
+        playerController.isReloading = false;
+        animator.SetBool("IsReloading", false);
+        equippedWeapon.StopReloading();
+        CancelInvoke(nameof(StopReloading));
+
+        if(firingPressed)
+        {
+            StartFiring();
+        }
 
     }
 }

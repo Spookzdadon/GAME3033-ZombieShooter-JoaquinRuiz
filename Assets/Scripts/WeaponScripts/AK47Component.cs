@@ -10,6 +10,10 @@ public class AK47Component : WeaponComponent
 
         if (weaponStats.bulletsInClip > 0 && !isReloading && !weaponHolder.playerController.isRunning)
         {
+            if (firingEffect)
+            {
+                firingEffect.Play();
+            }
             base.FireWeapon();
             Ray screenRay = mainCamera.ViewportPointToRay(new Vector2(0.5f, 0.5f));
             if (Physics.Raycast(screenRay, out RaycastHit hit, weaponStats.fireDistance, weaponStats.weaponHitLayers));
