@@ -71,7 +71,6 @@ public class ZombieStateMachine : MonoBehaviour
         if (isRunning)
         {
             currentState.Update();
-            print(currentState);
         }
     }
 
