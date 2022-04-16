@@ -8,7 +8,7 @@ public class PlayerEvents
 
     public static event OnWeaponEquippedEvent OnWeaponEquipeed;
     
-    public static void InvokeOnWEaponEquipped(WeaponComponent weaponComponent)
+    public static void InvokeOnWeaponEquipped(WeaponComponent weaponComponent)
     {
         OnWeaponEquipeed?.Invoke(weaponComponent);
     }

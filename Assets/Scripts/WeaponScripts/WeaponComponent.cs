@@ -32,11 +32,13 @@ public struct WeaponStats
 public class WeaponComponent : MonoBehaviour
 {
     public Transform gripLocation;
-    public WeaponStats weaponStats;
 
     protected WeaponHolder weaponHolder;
     [SerializeField]
     protected ParticleSystem firingEffect;
+
+    [SerializeField]
+    public WeaponStats weaponStats;
 
     public bool isFiring;
     public bool isReloading;
@@ -48,9 +50,14 @@ public class WeaponComponent : MonoBehaviour
         mainCamera = Camera.main;
     }
 
-    public void Initialize(WeaponHolder _weaponHolder)
+    public void Initialize(WeaponHolder _weaponHolder, WeaponScriptable weaponScriptable)
     {
         weaponHolder = _weaponHolder;
+
+        if (weaponScriptable)
+        {
+            weaponStats = weaponScriptable.weaponStats;
+        }
     }
 
     public virtual void StartFiringWeapon()
